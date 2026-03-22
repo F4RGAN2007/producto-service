@@ -46,11 +46,9 @@ public class ProductoServiceImpl implements IProductoService {
         return productoRepository.save(producto);
     }
 
-    /*
-    @Override
-    public List<Producto> findAll() {
-        return (List<Producto>) productoRepository.findAll();
-     */
+
+
+
 
 
     @Transactional(readOnly = true)
@@ -61,5 +59,10 @@ public class ProductoServiceImpl implements IProductoService {
     @Transactional
     public Producto save(Producto producto) {
         return productoRepository.save(producto);
+    }
+
+    @Override
+    public List<Producto> findAll() {
+        return (List<Producto>) productoRepository.findAll();
     }
 }
