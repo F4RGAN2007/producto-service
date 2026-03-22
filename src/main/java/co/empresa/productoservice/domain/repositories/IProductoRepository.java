@@ -1,8 +1,7 @@
-package co.empresa.productoservice.model.repositories;
+package co.empresa.productoservice.domain.repositories;
 
-import co.empresa.productoservice.model.entities.Producto;
+import co.empresa.productoservice.domain.model.Producto;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.repository.CrudRepository;
 
 /**
  * Interface que hereda de CrudRepository para realizar las

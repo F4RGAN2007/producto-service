@@ -1,6 +1,6 @@
-package co.empresa.productoservice.model.services;
+package co.empresa.productoservice.domain.services;
 
-import co.empresa.productoservice.model.entities.Producto;
+import co.empresa.productoservice.domain.model.Producto;
 import org.springframework.data.domain.Page;
 
 import org.springframework.data.domain.Pageable;

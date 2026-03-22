@@ -1,15 +1,11 @@
-package co.empresa.productoservice.controllers;
+package co.empresa.productoservice.delivery.rest;
 
 
-import co.empresa.productoservice.model.entities.Producto;
-import co.empresa.productoservice.model.services.IProductoService;
-import org.springframework.beans.factory.annotation.Autowired;
+import co.empresa.productoservice.domain.model.Producto;
+import co.empresa.productoservice.domain.services.IProductoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import jakarta.validation.constraints.*;
 import jakarta.validation.Valid;
