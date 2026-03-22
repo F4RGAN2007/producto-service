@@ -1,21 +1,31 @@
 package co.empresa.productoservice.model.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import jakarta.validation.constraints.*;
 
 @Entity
 
 public class Producto {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotBlank(message = "El nombre es obligatorio")
+    @Size(max = 120, message = "El nombre no debe exceder 120 caracteres")
     private String nombre;
+
+    @NotBlank(message = "La descripción es obligatoria")
+    @Size(max = 255, message = "La descripción no debe exceder 255 caracteres")
     private String descripcion;
+
+    @NotNull(message = "El precio es obligatorio")
+    @Positive(message = "El precio debe ser mayor que 0")
     private Double precio;
+
+
+
+
 
 
     public Long getId() {

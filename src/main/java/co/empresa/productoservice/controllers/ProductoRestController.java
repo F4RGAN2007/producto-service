@@ -5,11 +5,14 @@ import co.empresa.productoservice.model.entities.Producto;
 import co.empresa.productoservice.model.services.IProductoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import jakarta.validation.constraints.*;
+import jakarta.validation.Valid;
 
 import java.util.HashMap;
 import java.util.List;
@@ -25,9 +28,25 @@ public class ProductoRestController {
     private static final String MENSAJE = "mensaje";
     private static final String PRODUCTO = "producto";
     private static final String PRODUCTOS = "productos";
+    private static final String ERRORES = "errores";
 
     public ProductoRestController(IProductoService productoService) {
         this.productoService = productoService;
+    }
+
+    @PostMapping("/productos")
+    public ResponseEntity<Map<String, Object>> save(@Valid @RequestBody Producto producto, BindingResult result) {
+        if (result.hasErrors()) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", "Error de validación");
+            response.put("errores", result.getFieldErrors());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        Producto nuevo = productoService.save(producto);
+        Map<String,Object> resp = new HashMap<>();
+        resp.put(MENSAJE, "Creado con éxito");
+        resp.put(PRODUCTO, nuevo);
+        return ResponseEntity.status(HttpStatus.CREATED).body(resp);
     }
 
     @GetMapping("/productos")
@@ -37,20 +56,22 @@ public class ProductoRestController {
         response.put(PRODUCTOS, productos);
         return ResponseEntity.ok(response); // 200 OK
     }
-
+/**
     @PostMapping("/productos")
-    public ResponseEntity<Map<String, Object>> save(@RequestBody Producto producto) {
-        Map<String, Object> response = new HashMap<>();
-        Producto nuevoProducto = productoService.save(producto);
-        response.put(MENSAJE, "El producto ha sido creado con éxito!");
-        response.put(PRODUCTO, nuevoProducto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response); // 201 Created
+    public ResponseEntity<Map<String,Object>> create(@RequestBody Producto producto) {
+
+        Producto nuevo = productoService.save(producto);
+        Map<String,Object> resp = new HashMap<>();
+        resp.put(MENSAJE, "Creado con éxito");
+        resp.put(PRODUCTO, nuevo);
+        return ResponseEntity.status(HttpStatus.CREATED).body(resp);
     }
+ */
 
     @PutMapping("/productos/{id}")
     public ResponseEntity<Map<String, Object>> update(
             @PathVariable Long id,
-            @RequestBody Producto cambios) {
+            @Valid @RequestBody Producto cambios) {
 
         Map<String, Object> resp = new HashMap<>();
         Producto existente = productoService.findById(id);
@@ -93,4 +114,8 @@ public class ProductoRestController {
         resp.put(PRODUCTO, p);
         return ResponseEntity.ok(resp);
     }
+
+
+
+
 }
