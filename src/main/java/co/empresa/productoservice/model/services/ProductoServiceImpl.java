@@ -4,6 +4,11 @@ import co.empresa.productoservice.model.entities.Producto;
 import co.empresa.productoservice.model.repositories.IProductoRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Clase que implementa los métodos de la interfaz IProductoService
@@ -18,10 +23,13 @@ public class ProductoServiceImpl implements IProductoService {
         this.productoRepository = productoRepository;
     }
 
+    /*
     @Override
     public Producto save(Producto producto) {
         return productoRepository.save(producto);
     }
+    */
+
 
     @Override
     public void delete(Producto producto) {
@@ -38,8 +46,20 @@ public class ProductoServiceImpl implements IProductoService {
         return productoRepository.save(producto);
     }
 
+    /*
     @Override
     public List<Producto> findAll() {
         return (List<Producto>) productoRepository.findAll();
+     */
+
+
+    @Transactional(readOnly = true)
+    public Page<Producto> findAll(Pageable pageable) {
+        return productoRepository.findAll(pageable);
+    }
+
+    @Transactional
+    public Producto save(Producto producto) {
+        return productoRepository.save(producto);
     }
 }
