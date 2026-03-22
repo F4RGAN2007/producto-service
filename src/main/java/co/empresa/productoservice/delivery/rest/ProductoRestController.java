@@ -1,15 +1,15 @@
 package co.empresa.productoservice.delivery.rest;
 
-
 import co.empresa.productoservice.domain.exception.ProductoNoEncontradoException;
 import co.empresa.productoservice.domain.exception.ValidationException;
 import co.empresa.productoservice.domain.model.Producto;
 import co.empresa.productoservice.domain.services.IProductoService;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
-import jakarta.validation.constraints.*;
+
 import jakarta.validation.Valid;
 
 import java.util.HashMap;
@@ -22,96 +22,98 @@ public class ProductoRestController {
 
     private final IProductoService productoService;
 
-    // Evita "strings mágicos"
     private static final String MENSAJE = "mensaje";
     private static final String PRODUCTO = "producto";
     private static final String PRODUCTOS = "productos";
-    private static final String ERRORES = "errores";
 
     public ProductoRestController(IProductoService productoService) {
         this.productoService = productoService;
     }
 
+    // ✅ CREATE
     @PostMapping("/productos")
-    public ResponseEntity<Map<String,Object>> save(
+    public ResponseEntity<Map<String, Object>> save(
             @Valid @RequestBody Producto producto,
             BindingResult result) {
 
         if (result.hasErrors()) {
-            throw new ValidationException(result); // lo captura el Advice
+            throw new ValidationException(result);
         }
-        var creado = productoService.save(producto);
-        var resp = new HashMap<String,Object>();
-        resp.put("mensaje", "El producto ha sido creado con éxito!");
-        resp.put("producto", creado);
+
+        Producto creado = productoService.save(producto);
+
+        Map<String, Object> resp = new HashMap<>();
+        resp.put(MENSAJE, "El producto ha sido creado con éxito");
+        resp.put(PRODUCTO, creado);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(resp);
     }
 
+    // ✅ GET BY ID
     @GetMapping("/productos/{id}")
-    public ResponseEntity<Map<String,Object>> findById(@PathVariable Long id){
-        var p = productoService.findById(id);
-        if (p == null) throw new ProductoNoEncontradoException(id);
-        return ResponseEntity.ok(Map.of("producto", p));
+    public ResponseEntity<Map<String, Object>> findById(@PathVariable Long id) {
+        Producto p = productoService.findById(id);
+
+        if (p == null) {
+            throw new ProductoNoEncontradoException(id);
+        }
+
+        return ResponseEntity.ok(Map.of(PRODUCTO, p));
     }
 
-
+    // ✅ GET ALL
     @GetMapping("/productos")
     public ResponseEntity<Map<String, Object>> getProductos() {
         List<Producto> productos = productoService.findAll();
-        Map<String, Object> response = new HashMap<>();
-        response.put(PRODUCTOS, productos);
-        return ResponseEntity.ok(response); // 200 OK
+        return ResponseEntity.ok(Map.of(PRODUCTOS, productos));
     }
-/**
-    @PostMapping("/productos")
-    public ResponseEntity<Map<String,Object>> create(@RequestBody Producto producto) {
 
-        Producto nuevo = productoService.save(producto);
-        Map<String,Object> resp = new HashMap<>();
-        resp.put(MENSAJE, "Creado con éxito");
-        resp.put(PRODUCTO, nuevo);
-        return ResponseEntity.status(HttpStatus.CREATED).body(resp);
-    }
- */
-
+    // ✅ UPDATE (IMPORTANTE: ahora incluye stock y foto)
     @PutMapping("/productos/{id}")
     public ResponseEntity<Map<String, Object>> update(
             @PathVariable Long id,
-            @Valid @RequestBody Producto cambios) {
+            @Valid @RequestBody Producto cambios,
+            BindingResult result) {
 
-        Map<String, Object> resp = new HashMap<>();
-        Producto existente = productoService.findById(id);
-        if (existente == null) {
-            resp.put(MENSAJE, "Producto no encontrado");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(resp);
+        if (result.hasErrors()) {
+            throw new ValidationException(result);
         }
-        // Actualiza campos mínimos (ejemplo simple)
+
+        Producto existente = productoService.findById(id);
+
+        if (existente == null) {
+            throw new ProductoNoEncontradoException(id);
+        }
+
+        // 🔥 Actualizar TODOS los campos relevantes
         existente.setNombre(cambios.getNombre());
         existente.setDescripcion(cambios.getDescripcion());
         existente.setPrecio(cambios.getPrecio());
+        existente.setStock(cambios.getStock());
+        existente.setFoto(cambios.getFoto());
 
         Producto actualizado = productoService.update(existente);
-        resp.put(MENSAJE, "Actualizado con éxito");
-        resp.put(PRODUCTO, actualizado);
-        return ResponseEntity.ok(resp); // 200 OK
+
+        return ResponseEntity.ok(Map.of(
+                MENSAJE, "Producto actualizado con éxito",
+                PRODUCTO, actualizado
+        ));
     }
 
+    // ✅ DELETE
     @DeleteMapping("/productos/{id}")
     public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
-        Map<String, Object> resp = new HashMap<>();
+
         Producto existente = productoService.findById(id);
+
         if (existente == null) {
-            resp.put(MENSAJE, "Producto no encontrado");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(resp);
+            throw new ProductoNoEncontradoException(id);
         }
+
         productoService.delete(existente);
-        resp.put(MENSAJE, "Eliminado con éxito");
-        return ResponseEntity.ok(resp); // 200 OK
+
+        return ResponseEntity.ok(Map.of(
+                MENSAJE, "Producto eliminado con éxito"
+        ));
     }
-
-
-
-
-
-
 }
